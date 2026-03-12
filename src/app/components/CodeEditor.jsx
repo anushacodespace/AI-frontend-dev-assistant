@@ -10,10 +10,13 @@ function CodeEditor({ code, setCode, language }) {
       theme="vs-dark"
       value={code}
       onChange={(value) => setCode(value)}
-      options={{
-        fontSize: 14,
-        minimap: { enabled: false },
-      }}
+     options={{
+  fontSize: 14,
+  minimap: { enabled: false },
+  wordWrap: "on",
+  scrollBeyondLastLine: false,
+  automaticLayout: true
+}}
     />
   );
 }
