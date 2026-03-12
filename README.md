@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🤖 AI Developer Assistant
 
-## Getting Started
+AI-powered Developer Assistant built with **Next.js** and **Groq AI** that helps developers analyze code, detect bugs, improve code quality, and generate interview questions across multiple programming languages.
 
-First, run the development server:
+---
+
+## 🚀 Features
+
+* 🧠 Explain code logic
+* 🐞 Detect bugs in code
+* ⚡ Suggest code improvements
+* 🎯 Generate interview questions
+* 💻 Supports multiple languages (JS, TS, Python, PHP, CSS, HTML, Java, C++, SQL)
+* 🎨 Interactive code editor UI
+
+---
+
+## 🛠 Tech Stack
+
+* Next.js
+* React
+* Groq AI API
+* JavaScript
+* CSS
+
+---
+
+## 📸 Screenshots
+
+### Main Interface
+
+![App Screenshot](public/screenshots/home.png)
+
+### AI Code Analysis
+
+![AI Response](public/screenshots/analysis.png)
+
+----
+
+## ⚙️ Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/ai-dev-assistant.git
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🔑 Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `.env.local`
 
-## Learn More
+```
+GROQ_API_KEY=your_api_key_here
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🌟 Future Improvements
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* Code execution
+* Chat mode with AI
+* Dark / Light theme
+* Download analysis results

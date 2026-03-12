@@ -23,9 +23,16 @@ h1 {
 
 .main-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 22px;
-  height: calc(100vh - 120px);
+}
+
+/* Desktop layout */
+@media (min-width: 900px) {
+  .main-container {
+    grid-template-columns: 1fr 1fr;
+    height: calc(100vh - 120px);
+  }
 }
 
 .editor-panel {
