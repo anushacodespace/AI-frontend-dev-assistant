@@ -39,11 +39,11 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [language, setLanguage] = useState("javascript");
 
-  // Chat state
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
 
+  // 🔥 FIXED STREAMING
   const runAI = async (type) => {
     if (!code.trim()) {
       setResults((prev) => ({
@@ -58,6 +58,12 @@ export default function Home() {
     setLoadingTab(type);
     setActiveTab(type);
 
+    // reset output
+    setResults((prev) => ({
+      ...prev,
+      [type]: "",
+    }));
+
     try {
       const response = await fetch("/api/ai", {
         method: "POST",
@@ -65,8 +71,32 @@ export default function Home() {
         body: JSON.stringify({ code, type, language }),
       });
 
-      const data = await response.json();
-      setResults((prev) => ({ ...prev, [type]: data.result }));
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let done = false;
+      let fullText = "";
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+
+        const chunk = decoder.decode(value);
+        if (!chunk) continue;
+
+        fullText += chunk;
+
+        setResults((prev) => {
+          const updated = {
+            ...prev,
+            [type]: fullText,
+          };
+          return { ...updated };
+        });
+
+        // 🔥 force UI update
+        await new Promise((r) => setTimeout(r, 0));
+      }
     } catch {
       setResults((prev) => ({
         ...prev,
@@ -93,6 +123,7 @@ export default function Home() {
     setLoadingTab("");
   };
 
+  // 🔥 FIXED CHAT STREAMING
   const sendChat = async () => {
     if (!chatInput.trim()) return;
 
@@ -120,9 +151,39 @@ export default function Home() {
         }),
       });
 
-      const data = await response.json();
-      const assistantMessage = { role: "assistant", content: data.result };
-      setChatMessages([...updatedMessages, assistantMessage]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let done = false;
+      let fullText = "";
+
+      // add empty assistant message
+      setChatMessages([
+        ...updatedMessages,
+        { role: "assistant", content: "" },
+      ]);
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+
+        const chunk = decoder.decode(value);
+        if (!chunk) continue;
+
+        fullText += chunk;
+
+        setChatMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...updated[updated.length - 1],
+            content: fullText,
+          };
+          return [...updated];
+        });
+
+        // 🔥 force UI update
+        await new Promise((r) => setTimeout(r, 0));
+      }
     } catch {
       setChatMessages([
         ...updatedMessages,
@@ -145,7 +206,6 @@ export default function Home() {
       <h1>AI Frontend Developer Assistant</h1>
 
       <div className="main-container">
-        {/* LEFT SIDE */}
         <div className="editor-panel">
           <div className="language-selector">
             {languages.map((lang) => (
@@ -189,9 +249,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="ai-panel">
-          {/* Tabs */}
           <div className="tabs">
             {TABS.map(({ label, type }) => (
               <button
@@ -205,7 +263,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* CHAT TAB */}
           {activeTab === "chat" ? (
             <div className="chat-container">
               <div className="chat-messages">
@@ -226,59 +283,28 @@ export default function Home() {
                 ))}
                 {chatLoading && (
                   <div className="chat-bubble chat-ai">
-                    <div className="loader-row">
-                      <ClipLoader size={14} color="#3b82f6" />
-                      <span>Thinking...</span>
-                    </div>
+                    <ClipLoader size={14} color="#3b82f6" />
                   </div>
                 )}
               </div>
 
               <div className="chat-input-row">
                 <textarea
-                  className="chat-input"
-                  placeholder="Ask about your code... (Enter to send)"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  rows={2}
                 />
-                <button
-                  className="chat-send-btn"
-                  onClick={sendChat}
-                  disabled={!chatInput.trim() || chatLoading}
-                >
-                  Send
-                </button>
+                <button onClick={sendChat}>Send</button>
               </div>
             </div>
           ) : (
-            /* ANALYSIS TABS */
             <div className="tab-content">
-              <div className="ai-panel-header">
-                {results[activeTab] && (
-                  <button className="copy-btn" onClick={handleCopy}>
-                    {copied ? "✅ Copied!" : "📋 Copy"}
-                  </button>
-                )}
-              </div>
-
-              {loadingTab === activeTab && (
-                <div className="loader-row">
-                  <ClipLoader size={18} color="#3b82f6" />
-                  <span>Analyzing your code...</span>
-                </div>
+              {results[activeTab] && (
+                <button onClick={handleCopy}>
+                  {copied ? "Copied!" : "Copy"}
+                </button>
               )}
-
-              {loadingTab !== activeTab && results[activeTab] && (
-                <ReactMarkdown>{results[activeTab]}</ReactMarkdown>
-              )}
-
-              {loadingTab !== activeTab && !results[activeTab] && (
-                <p className="empty-msg">
-                  ✨ Click a button to analyze your code.
-                </p>
-              )}
+              <ReactMarkdown>{results[activeTab]}</ReactMarkdown>
             </div>
           )}
         </div>
